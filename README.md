@@ -1,81 +1,118 @@
-# QBall Dynamics and Control Analysis (MATLAB)
+# QBall 6-DOF Dynamics & Optimal Control Design (MATLAB)
 
 ## Overview
 
-This project focuses on modeling and analyzing the dynamics of a QBall aerial platform in MATLAB.
+This project models, linearizes, and stabilizes a 6-degree-of-freedom (6-DOF) quadrotor platform (QBall) using state-space control methods in MATLAB.
 
-The QBall is a 6-degree-of-freedom (6-DOF) aerial system controlled by four motors with counter-rotating propellers. This project explores the mathematical modeling, control structure, and system behavior of the platform.
+The system includes nonlinear rigid-body dynamics, actuator bandwidth modeling, and full multi-axis coupling. A Linear Quadratic Regulator (LQR) controller is designed to stabilize the system and evaluate closed-loop performance.
 
 
 
-## System Description
+## System Modeling
 
 The QBall platform consists of:
 
-- Four motors with counter-rotating propellers
-- 6 degrees of freedom (x, y, z, roll, pitch, yaw)
-- Multi-variable control input structure
+- 4 counter-rotating propellers
+- 6 degrees of freedom:
+  - Translational: X, Y, Z
+  - Rotational: Roll, Pitch, Yaw
+- Coupled nonlinear rigid-body dynamics
 
-The objective was to analyze and simulate system behavior under various conditions using MATLAB-based modeling techniques.
+### Nonlinear Equations of Motion
 
+Key modeled dynamics include:
 
+- Roll / Pitch:
+  J θ̈ = F L
 
-## Objectives
+- Z-axis:
+  M Z̈ = 4F cos(r)cos(p) − Mg
 
-- Model QBall dynamics using mathematical system representations
-- Analyze 6-DOF motion behavior
-- Implement and test control strategies in MATLAB
-- Evaluate system response and stability characteristics
-- Interpret results using structured simulation output
+- X-axis:
+  M Ẍ = 4F sin(p)
 
+- Y-axis:
+  M Ÿ = −4F sin(r)
 
-
-## Control & Modeling Approach
-
-The system was implemented in MATLAB using structured script-based modeling.
-
-Key elements included:
-
-- Multi-variable system dynamics representation
-- State variable formulation
-- Control response evaluation
-- System output visualization
-
-The full implementation is contained within the primary MATLAB script.
+- Yaw:
+  Jᵧ θ̈ᵧ = Kᵧ Δτ
 
 
 
-## Files Included
+## Actuator Dynamics
 
-- `qball_dynamics_analysis.m`  
-  MATLAB implementation of QBall modeling and control analysis.
+Motor thrust is modeled as a first-order system:
 
-- `qball_project_documentation.pdf`  
-  Detailed explanation of system modeling approach, assumptions, and results.
+F = K (ω / (s + ω)) u
 
-- `LICENSE`  
-  Apache 2.0 License.
+Actuator state representation:
+
+v̇ = ω(u − v)
+
+This incorporates motor bandwidth and actuator lag into the control model.
+
+
+
+## Linearization & State-Space Formulation
+
+The nonlinear system is linearized about a small-angle equilibrium point.
+
+For each axis, state-space models are derived:
+
+ẋ = Ax + Bu
+
+States include:
+
+- Position / angle
+- Velocity
+- Actuator state (v)
+- Integral state (s) for reference tracking
+
+
+
+## System Analysis
+
+- Verified controllability using `ctrb()`
+- Verified observability using `obsv()`
+- Evaluated eigenstructure of linearized system
+- Constructed augmented state model for integral control
+
+
+
+## Control Design
+
+An optimal state-feedback controller was designed using Linear Quadratic Regulation (LQR):
+
+u = −Kx + ref
+
+Design steps:
+
+1. Select weighting matrices Q and R
+2. Solve Algebraic Riccati Equation
+3. Compute optimal gain K using `lqr(A,B,Q,R)`
+
+Closed-loop system:
+
+ẋ = (A − BK)x + Bref
 
 
 
 ## Results
 
-- Modeled multi-input multi-output (MIMO) system behavior.
-- Evaluated system motion across 6 degrees of freedom.
-- Analyzed stability and control response characteristics.
-- Demonstrated structured MATLAB-based system modeling workflow.
+- Stabilized multi-input multi-output (MIMO) system
+- Demonstrated closed-loop eigenvalue shift
+- Evaluated response across all 6 DOF
+- Validated stability under optimal feedback control
 
 
 
 ## Technical Focus Areas
 
-- Control Systems
-- Multi-Variable Dynamics
-- State-Space Modeling
-- System Stability Analysis
-- MATLAB Simulation
+- Nonlinear Dynamics Modeling
+- State-Space Linearization
+- MIMO Control Systems
+- LQR Optimal Control
+- Controllability & Observability Analysis
+- MATLAB-Based Simulation
 
-
-
-This project demonstrates foundational experience in control systems modeling and dynamic system analysis.
 
